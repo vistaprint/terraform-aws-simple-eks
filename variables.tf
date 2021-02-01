@@ -35,11 +35,6 @@ variable "scaling_config" {
   })
 }
 
-variable "create_identity_provider" {
-  type    = bool
-  default = false
-}
-
 variable "instance_type" {
   type    = string
   default = "t3.medium"
