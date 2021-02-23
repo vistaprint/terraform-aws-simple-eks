@@ -40,6 +40,16 @@ variable "instance_type" {
   default = "t3.medium"
 }
 
+variable "architecture" {
+  type    = string
+  default = "x86_64"
+
+  validation {
+    condition     = var.architecture == "x86_64" || var.architecture == "arm64"
+    error_message = "Invalid value for architecture (must be x86_64 or arm64)."
+  }
+}
+
 variable "use_calico_cni" {
   type    = bool
   default = false
