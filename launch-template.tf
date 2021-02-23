@@ -1,6 +1,11 @@
+locals {
+  x86_64_ami = "amazon-eks-node-${var.cluster_version}-v*"
+  arm64_ami  = "amazon-eks-arm64-node-${var.cluster_version}-v*"
+}
+
 data "aws_ami" "ami" {
   most_recent = true
-  name_regex  = "amazon-eks-node-${var.cluster_version}-v*"
+  name_regex  = var.architecture == "x86_64" ? local.x86_64_ami : local.arm64_ami
   owners      = ["amazon"]
 }
 
