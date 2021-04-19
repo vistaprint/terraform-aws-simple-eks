@@ -13,6 +13,24 @@ Another important criteria is the maximum number of pods the cluster can concurr
 
 [Alernative pod networking solutions](https://docs.aws.amazon.com/eks/latest/userguide/alternate-cni-plugins.html) exist that lift the pod density limitation. This module supports using [Calico CNI](https://docs.projectcalico.org) to allow for a much higher number of pods per node. This is especially useful when many pods are expected to be running on the cluster, but they will be mostly idle.
 
+## Development
+
+### Testing
+
+We use [Terratest](https://github.com/gruntwork-io/terratest) to run integration tests.
+
+Before running the tests the following environment variables must be set:
+
+- AWS_PROFILE: the AWS profile to use for the test
+- AWS_DEFAULT_REGION: region where the test cluster will be created
+- SIMPLE_EKS_TEST_VPC_NAME: VPC to be used by the test cluster
+
+Then, go into `test` folder and run:
+
+```shell
+go test -v -timeout 30m
+```
+
 ## References
 
 - [Creating an Amazon EKS cluster](https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html)
