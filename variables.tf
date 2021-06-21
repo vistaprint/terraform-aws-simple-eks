@@ -14,7 +14,7 @@ variable "cluster_name" {
 # log group name will be var.cluster_name
 variable "log_group_name" {
   type    = string
-  default = ""
+  default = null
 }
 
 variable "cluster_version" {
