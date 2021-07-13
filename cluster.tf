@@ -10,8 +10,10 @@ resource "aws_eks_cluster" "cluster" {
 
   enabled_cluster_log_types = [
     "api",
-    # "audit",  # generates quite a bit of data
-    "authenticator"
+    "audit", # generates quite a bit of data
+    "authenticator",
+    "controllerManager",
+    "scheduler"
   ]
 
   tags = var.tags
