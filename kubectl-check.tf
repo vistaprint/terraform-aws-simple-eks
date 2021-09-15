@@ -29,8 +29,6 @@ resource "null_resource" "update_kubeconfig_with_cluster_info" {
         update-kubeconfig \
         --name ${aws_eks_cluster.cluster.name}
     EOT
-
-    interpreter = ["bash", "-c"]
   }
 
   depends_on = [
