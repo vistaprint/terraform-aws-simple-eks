@@ -10,13 +10,6 @@ variable "cluster_name" {
   type = string
 }
 
-# If this variable is an empty string, the
-# log group name will be var.cluster_name
-variable "log_group_name" {
-  type    = string
-  default = null
-}
-
 variable "cluster_version" {
   type = string
 }
