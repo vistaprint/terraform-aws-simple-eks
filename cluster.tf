@@ -1,9 +1,17 @@
+locals {
+  private_endpoint_enabled = length(var.public_access_cidrs) > 0 ? true : false
+}
+
 resource "aws_eks_cluster" "cluster" {
   name     = var.cluster_name
   role_arn = aws_iam_role.role.arn
 
   vpc_config {
     subnet_ids = data.aws_subnet_ids.private.ids
+
+    endpoint_private_access = local.private_endpoint_enabled
+    endpoint_public_access  = true
+    public_access_cidrs     = var.public_access_cidrs
   }
 
   version = var.cluster_version
