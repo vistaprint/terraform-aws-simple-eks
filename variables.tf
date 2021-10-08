@@ -38,7 +38,12 @@ variable "cluster_log_types" {
   }
 }
 
+variable "private_endpoint_enabled" {
+  type    = bool
+  default = false
+}
+
 variable "public_access_cidrs" {
   type    = list(string)
-  default = []
+  default = ["0.0.0.0/0"]
 }
