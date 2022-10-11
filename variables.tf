@@ -23,11 +23,6 @@ variable "tags" {
   default = {}
 }
 
-variable "use_calico_cni" {
-  type    = bool
-  default = false
-}
-
 variable "cluster_log_types" {
   type       = list(string)
   default    = ["api", "authenticator"]

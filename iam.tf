@@ -61,29 +61,3 @@ resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
   role       = aws_iam_role.worker_role.name
 }
-
-# Allow workers to modify instance attributes (needed for Calico CNI)
-# (see https://docs.projectcalico.org/reference/public-cloud/aws#routing-traffic-within-a-single-vpc-subnet
-# and https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck)
-
-# TODO: can we restrict the resource to the specific EC2 instance?
-
-resource "aws_iam_role_policy" "modify_instance_attributes" {
-  count = var.use_calico_cni ? 1 : 0
-
-  name = "modify-instance-attributes"
-  role = aws_iam_role.worker_role.id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-          "ec2:ModifyInstanceAttribute"
-        ],
-        "Resource" : "*",
-        "Effect" : "Allow"
-      }
-    ]
-  })
-}
