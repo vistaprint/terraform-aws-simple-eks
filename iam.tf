@@ -51,9 +51,9 @@ resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
   role       = aws_iam_role.worker_role.name
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
+resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_IPv6_Policy" {
   count      = var.ip_family == "ipv6" ? 1 : 0
-  policy_arn = aws_iam_policy.vpc_cni_ipv6[0].arn
+  policy_arn = aws_iam_policy.AmazonEKS_CNI_IPv6_Policy[0].arn
   role       = aws_iam_role.worker_role.name
 }
 
@@ -71,7 +71,7 @@ resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
 
 # Policy for VPC CNI with IPv6
 
-resource "aws_iam_policy" "vpc_cni_ipv6" {
+resource "aws_iam_policy" "AmazonEKS_CNI_IPv6_Policy" {
   count = var.ip_family == "ipv6" ? 1 : 0
 
   name = "AmazonEKS_CNI_IPv6_Policy"
