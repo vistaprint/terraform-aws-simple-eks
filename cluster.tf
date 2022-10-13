@@ -6,6 +6,10 @@ resource "aws_eks_cluster" "cluster" {
     subnet_ids = data.aws_subnets.private.ids
   }
 
+  kubernetes_network_config {
+    ip_family = var.ip_family
+  }
+
   version = var.cluster_version
 
   enabled_cluster_log_types = var.cluster_log_types
