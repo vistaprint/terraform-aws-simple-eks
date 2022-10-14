@@ -3,7 +3,11 @@ resource "aws_eks_cluster" "cluster" {
   role_arn = aws_iam_role.role.arn
 
   vpc_config {
-    subnet_ids = data.aws_subnet_ids.private.ids
+    subnet_ids = data.aws_subnets.private.ids
+  }
+
+  kubernetes_network_config {
+    ip_family = var.ip_family
   }
 
   version = var.cluster_version
@@ -25,52 +29,4 @@ resource "aws_cloudwatch_log_group" "control_plane_logs" {
   retention_in_days = 30
 
   tags = var.tags
-}
-
-resource "null_resource" "remove_aws_vpc_cni" {
-  count = var.use_calico_cni ? 1 : 0
-
-  triggers = {
-    always_run = uuid()
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      curl https://raw.githubusercontent.com/aws/amazon-vpc-cni-k8s/release-1.7/config/v1.7/aws-k8s-cni.yaml |
-        kubectl --context='${aws_eks_cluster.cluster.arn}' delete -f - || true
-    EOT
-
-    interpreter = ["bash", "-c"]
-  }
-
-  depends_on = [
-    null_resource.check_aws_credentials_are_available,
-    null_resource.update_kubeconfig_with_cluster_info
-  ]
-}
-
-# Install Calico CNI provider
-# (see https://docs.projectcalico.org/getting-started/kubernetes/managed-public-cloud/eks)
-
-resource "null_resource" "install_calico_cni" {
-  count = var.use_calico_cni ? 1 : 0
-
-  triggers = {
-    always_run = uuid()
-  }
-
-  provisioner "local-exec" {
-    command = <<-EOT
-      kubectl --context='${aws_eks_cluster.cluster.arn}' \
-        apply -f https://docs.projectcalico.org/archive/v3.17/manifests/calico-vxlan.yaml
-    EOT
-
-    interpreter = ["bash", "-c"]
-  }
-
-  depends_on = [
-    null_resource.remove_aws_vpc_cni,
-    null_resource.check_aws_credentials_are_available,
-    null_resource.update_kubeconfig_with_cluster_info
-  ]
 }

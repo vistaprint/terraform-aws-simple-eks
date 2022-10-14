@@ -4,16 +4,23 @@ data "aws_vpc" "eks_vpc" {
   }
 }
 
-data "aws_subnet_ids" "public" {
-  vpc_id = data.aws_vpc.eks_vpc.id
+
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.eks_vpc.id]
+  }
 
   tags = {
     Type = "Public"
   }
 }
 
-data "aws_subnet_ids" "private" {
-  vpc_id = data.aws_vpc.eks_vpc.id
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.eks_vpc.id]
+  }
 
   tags = {
     Type = "Private"
@@ -24,7 +31,7 @@ data "aws_subnet_ids" "private" {
 
 resource "null_resource" "tag_subnets" {
   triggers = {
-    subnet_ids   = join(" ", setunion(data.aws_subnet_ids.public.ids, data.aws_subnet_ids.private.ids))
+    subnet_ids   = join(" ", setunion(data.aws_subnets.public.ids, data.aws_subnets.private.ids))
     cluster_name = var.cluster_name
     region       = var.region
     profile      = var.profile

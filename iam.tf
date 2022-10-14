@@ -46,7 +46,14 @@ resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
+  count      = var.ip_family == "ipv4" ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.worker_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_IPv6_Policy" {
+  count      = var.ip_family == "ipv6" ? 1 : 0
+  policy_arn = aws_iam_policy.AmazonEKS_CNI_IPv6_Policy[0].arn
   role       = aws_iam_role.worker_role.name
 }
 
@@ -62,28 +69,41 @@ resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
   role       = aws_iam_role.worker_role.name
 }
 
-# Allow workers to modify instance attributes (needed for Calico CNI)
-# (see https://docs.projectcalico.org/reference/public-cloud/aws#routing-traffic-within-a-single-vpc-subnet
-# and https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html#EIP_Disable_SrcDestCheck)
+# Policy for VPC CNI with IPv6
+#
+# For more details see:
+#   https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-ipv6-policy
 
-# TODO: can we restrict the resource to the specific EC2 instance?
+resource "aws_iam_policy" "AmazonEKS_CNI_IPv6_Policy" {
+  count = var.ip_family == "ipv6" ? 1 : 0
 
-resource "aws_iam_role_policy" "modify_instance_attributes" {
-  count = var.use_calico_cni ? 1 : 0
+  name = "AmazonEKS_CNI_IPv6_Policy"
 
-  name = "modify-instance-attributes"
-  role = aws_iam_role.worker_role.id
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-          "ec2:ModifyInstanceAttribute"
-        ],
-        "Resource" : "*",
-        "Effect" : "Allow"
-      }
-    ]
-  })
+  policy = jsonencode(
+    {
+      "Version" : "2012-10-17",
+      "Statement" : [
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "ec2:AssignIpv6Addresses",
+            "ec2:DescribeInstances",
+            "ec2:DescribeTags",
+            "ec2:DescribeNetworkInterfaces",
+            "ec2:DescribeInstanceTypes"
+          ],
+          "Resource" : "*"
+        },
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "ec2:CreateTags"
+          ],
+          "Resource" : [
+            "arn:aws:ec2:*:*:network-interface/*"
+          ]
+        }
+      ]
+    }
+  )
 }
