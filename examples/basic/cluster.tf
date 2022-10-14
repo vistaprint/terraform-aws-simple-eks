@@ -2,7 +2,7 @@ module "cluster" {
   source  = "./../.."
 
   cluster_name      = "simple-eks-integration-test"
-  cluster_version   = "1.21"
+  cluster_version   = "1.23"
   vpc_name          = var.vpc_name
   cluster_log_types = ["api", "audit", "authenticator"]
 
