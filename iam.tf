@@ -70,6 +70,9 @@ resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
 }
 
 # Policy for VPC CNI with IPv6
+#
+# For more details see:
+#   https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-ipv6-policy
 
 resource "aws_iam_policy" "AmazonEKS_CNI_IPv6_Policy" {
   count = var.ip_family == "ipv6" ? 1 : 0

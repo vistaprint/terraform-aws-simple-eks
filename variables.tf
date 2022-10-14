@@ -20,7 +20,7 @@ variable "vpc_name" {
 
 variable "ip_family" {
   type    = string
-  default = null
+  default = "ipv4"
 
   validation {
     condition     = var.ip_family == "ipv4" || var.ip_family == "ipv6"
@@ -38,7 +38,10 @@ variable "cluster_log_types" {
   default = ["api", "authenticator"]
 
   validation {
-    condition     = length(setsubtract(var.cluster_log_types, ["api", "audit", "authenticator", "controllerManager", "scheduler"])) == 0
+    condition = length(setsubtract(
+      var.cluster_log_types,
+      ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+    )) == 0
     error_message = "Control plane logs can only be a list containing any of api, audit, authenticator, controllerManager or scheduler."
   }
 }
