@@ -77,7 +77,7 @@ resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
 resource "aws_iam_policy" "AmazonEKS_CNI_IPv6_Policy" {
   count = var.ip_family == "ipv6" ? 1 : 0
 
-  name = "AmazonEKS_CNI_IPv6_Policy"
+  name = "${var.cluster_name}-AmazonEKS_CNI_IPv6_Policy"
 
   policy = jsonencode(
     {
