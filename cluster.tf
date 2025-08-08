@@ -41,7 +41,7 @@ resource "aws_eks_cluster" "cluster" {
     subnet_ids = data.aws_subnets.private.ids
   }
 
-  # enabled_cluster_log_types = var.cluster_log_types
+  enabled_cluster_log_types = var.enabled_cluster_log_types
 
   tags = var.tags
 
@@ -54,9 +54,9 @@ resource "aws_eks_cluster" "cluster" {
   ]
 }
 
-# resource "aws_cloudwatch_log_group" "control_plane_logs" {
-#   name              = "/aws/eks/${var.cluster_name}/cluster"
-#   retention_in_days = 30
+resource "aws_cloudwatch_log_group" "control_plane_logs" {
+  name              = "/aws/eks/${var.cluster_name}/cluster"
+  retention_in_days = 30
 
-#   tags = var.tags
-# }
+  tags = var.tags
+}
