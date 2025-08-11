@@ -1,6 +1,9 @@
 # Simple EKS Module
 
-Simple Terraform module to create EKS clusters. The module is quite opinionated to keep things as simple as possible, but it should be sufficient for many use-cases. This module will not create any node groups in the cluster. To do so, use [its companion module](https://github.com/vistaprint/terraform-aws-simple-eks-node-group). An [additional module](https://github.com/vistaprint/terraform-aws-simple-eks-addons) can be used to install several useful applications in the cluster (e.g., metrics server or cluster autoscaler).
+> [!NOTE]
+> This module only supports the creation of EKS clusters using [Auto Mode](https://docs.aws.amazon.com/eks/latest/userguide/automode.html).
+
+Simple Terraform module to create EKS clusters. The module is quite opinionated to keep things as simple as possible, but it should be sufficient for many use-cases. This module will only create the system node pool. To create additional node pools, use [its companion module](https://github.com/vistaprint/terraform-aws-simple-eks-node-pool).
 
 ## Development
 
@@ -19,8 +22,3 @@ Then, go into `test` folder and run:
 ```shell
 go test -v -timeout 30m
 ```
-
-## References
-
-- [Creating an Amazon EKS cluster](https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html)
-- [Cluster VPC considerations](https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html)
