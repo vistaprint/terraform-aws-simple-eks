@@ -24,6 +24,8 @@ func TestTerraformBasicExample(t *testing.T) {
 	vpcName := os.Getenv("SIMPLE_EKS_TEST_VPC_NAME")
 	require.NotEmpty(t, vpcName)
 
+	skipDestroy := os.Getenv("SKIP_DESTROY") == "true"
+
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "../examples/basic",
 		Vars: map[string]any{
@@ -34,16 +36,11 @@ func TestTerraformBasicExample(t *testing.T) {
 		NoColor: true,
 	})
 
-	defer terraform.Destroy(t, terraformOptions)
+	if !skipDestroy {
+		defer terraform.Destroy(t, terraformOptions)
+	}
 
 	terraform.InitAndApply(t, terraformOptions)
-
-	// assert.Regexp(t,
-	// 	`^arn:aws:iam::.+:role\/simple-eks-integration-test-eks-worker-role$`,
-	// 	terraform.Output(t, terraformOptions, "worker_role_arn"),
-	// )
-
-	// assert.NotEmpty(t, terraform.Output(t, terraformOptions, "private_subnet_ids"))
 
 	checkClusterExists(t, "simple-eks-integration-test", awsRegion)
 

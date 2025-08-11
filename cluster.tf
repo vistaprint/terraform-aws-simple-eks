@@ -51,6 +51,7 @@ resource "aws_eks_cluster" "cluster" {
     aws_iam_role_policy_attachment.AmazonEKSBlockStoragePolicy,
     aws_iam_role_policy_attachment.AmazonEKSLoadBalancingPolicy,
     aws_iam_role_policy_attachment.AmazonEKSNetworkingPolicy,
+    aws_cloudwatch_log_group.control_plane_logs,
   ]
 }
 
