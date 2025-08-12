@@ -1,15 +1,20 @@
-resource "aws_iam_role" "role" {
-  name = "${var.cluster_name}-eks-role"
+// cluster
+
+resource "aws_iam_role" "cluster" {
+  name = "${var.cluster_name}-cluster-role"
 
   assume_role_policy = jsonencode({
     Version : "2012-10-17",
     Statement : [
       {
+        Action : [
+          "sts:AssumeRole",
+          "sts:TagSession"
+        ],
         Effect : "Allow",
         Principal : {
           Service : "eks.amazonaws.com"
-        },
-        Action : "sts:AssumeRole"
+        }
       }
     ]
   })
@@ -17,18 +22,36 @@ resource "aws_iam_role" "role" {
 
 resource "aws_iam_role_policy_attachment" "AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.role.name
+  role       = aws_iam_role.cluster.name
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEKSServicePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-  role       = aws_iam_role.role.name
+resource "aws_iam_role_policy_attachment" "AmazonEKSComputePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSComputePolicy"
+  role       = aws_iam_role.cluster.name
 }
 
-resource "aws_iam_role" "worker_role" {
-  name = "${var.cluster_name}-eks-worker-role"
+resource "aws_iam_role_policy_attachment" "AmazonEKSBlockStoragePolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSBlockStoragePolicy"
+  role       = aws_iam_role.cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKSLoadBalancingPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy"
+  role       = aws_iam_role.cluster.name
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonEKSNetworkingPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSNetworkingPolicy"
+  role       = aws_iam_role.cluster.name
+}
+
+// node
+
+resource "aws_iam_role" "node" {
+  name = "${var.cluster_name}-node-role"
 
   assume_role_policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [{
       Action = "sts:AssumeRole"
       Effect = "Allow"
@@ -36,74 +59,15 @@ resource "aws_iam_role" "worker_role" {
         Service = "ec2.amazonaws.com"
       }
     }]
-    Version = "2012-10-17"
   })
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.worker_role.name
+resource "aws_iam_role_policy_attachment" "AmazonEKSWorkerNodeMinimalPolicy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodeMinimalPolicy"
+  role       = aws_iam_role.node.name
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_Policy" {
-  count      = var.ip_family == "ipv4" ? 1 : 0
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.worker_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "AmazonEKS_CNI_IPv6_Policy" {
-  count      = var.ip_family == "ipv6" ? 1 : 0
-  policy_arn = aws_iam_policy.AmazonEKS_CNI_IPv6_Policy[0].arn
-  role       = aws_iam_role.worker_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.worker_role.name
-}
-
-# Allow workers to send logs to CloudWatch
-
-resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
-  role       = aws_iam_role.worker_role.name
-}
-
-# Policy for VPC CNI with IPv6
-#
-# For more details see:
-#   https://docs.aws.amazon.com/eks/latest/userguide/cni-iam-role.html#cni-iam-role-create-ipv6-policy
-
-resource "aws_iam_policy" "AmazonEKS_CNI_IPv6_Policy" {
-  count = var.ip_family == "ipv6" ? 1 : 0
-
-  name = "${var.cluster_name}-AmazonEKS_CNI_IPv6_Policy"
-
-  policy = jsonencode(
-    {
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Effect" : "Allow",
-          "Action" : [
-            "ec2:AssignIpv6Addresses",
-            "ec2:DescribeInstances",
-            "ec2:DescribeTags",
-            "ec2:DescribeNetworkInterfaces",
-            "ec2:DescribeInstanceTypes"
-          ],
-          "Resource" : "*"
-        },
-        {
-          "Effect" : "Allow",
-          "Action" : [
-            "ec2:CreateTags"
-          ],
-          "Resource" : [
-            "arn:aws:ec2:*:*:network-interface/*"
-          ]
-        }
-      ]
-    }
-  )
+resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryPullOnly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
+  role       = aws_iam_role.node.name
 }

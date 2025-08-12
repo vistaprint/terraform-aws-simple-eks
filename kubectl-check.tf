@@ -6,7 +6,7 @@ resource "null_resource" "check_aws_credentials_are_available" {
   provisioner "local-exec" {
     command = <<-EOT
       sh -c '
-        aws sts get-caller-identity
+        aws sts get-caller-identity --profile ${var.profile} --region ${var.region}
         if [ $? -ne 0 ]; then
           echo "There was some issue trying to execute the AWS CLI."
           echo "This might mean no valid credentials are configured."
