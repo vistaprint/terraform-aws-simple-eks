@@ -18,16 +18,6 @@ variable "vpc_name" {
   type = string
 }
 
-# variable "ip_family" {
-#   type    = string
-#   default = "ipv4"
-
-#   validation {
-#     condition     = var.ip_family == "ipv4" || var.ip_family == "ipv6"
-#     error_message = "ip_family can only be ipv4 or ipv6"
-#   }
-# }
-
 variable "tags" {
   type    = map(string)
   default = {}
